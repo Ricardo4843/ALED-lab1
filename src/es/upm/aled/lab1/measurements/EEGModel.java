@@ -56,8 +56,8 @@ public class EEGModel {
 	 * @param measurements The Measurements that make up the EEGModel.
 	 */
 	public EEGModel(Measurement[] measurements) {
-		for (int i = 0; i < measurements.length; i++) {
-			this.measurements.add(measurements[i]);
+		for(Measurement m : measurements) {
+			this.addMeasurement(m);
 		}
 	}
 
@@ -89,11 +89,8 @@ public class EEGModel {
 	 * @param filter Filter to be applied over the EEGModel.
 	 * @return The new EEGModel.
 	 */
-	public EEGModel filter(Filter filter) {
-		if (filter != null) {
-			return filter.applyFilter(this);
-		}
-		return null;
+	public EEGModel filter(Filter filter) {	
+		return filter.applyFilter(this);
 	}
 
 	/**
@@ -142,7 +139,7 @@ public class EEGModel {
 				ps.print(", " + m.getChannel(j));
 			ps.println();
 		}
-		fos.close();
+		ps.close();
 	}
 
 	/**
@@ -259,9 +256,12 @@ public class EEGModel {
 	public static void main(String[] args) {
 		if (args.length > 0) {
 			EEGModel eeg = new EEGModel(args[0]);
-			FilterExtractChannels channelFilter = new FilterExtractChannels(new int[] { 8, 9, 10 });
-			FilterExtractPeriod periodFilter = new FilterExtractPeriod(2750, 5750);
-			eeg = eeg.filter(channelFilter).filter(periodFilter);
+			int min = 2750;
+			int max = 5750;
+			int[] validChannels = { 8, 9, 10};
+
+			eeg = eeg.filter(new FilterExtractPeriod(min, max));
+			eeg = eeg.filter(new FilterExtractChannels(validChannels));
 			eeg.plotData();
 
 		} else {
